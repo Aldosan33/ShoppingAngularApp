@@ -11,11 +11,7 @@ import { exhaustMap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataStorageService {
-  constructor(
-    private http: HttpClient,
-    private recipeService: RecipeService,
-    private authService: AuthService
-  ) {}
+  constructor(private http: HttpClient, private recipeService: RecipeService) {}
 
   storeRecipes() {
     const recipes = this.recipeService.getRecipes();
