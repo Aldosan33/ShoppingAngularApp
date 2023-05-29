@@ -1,5 +1,4 @@
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import * as AuthActions from './auth.actions';
 import { switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -9,6 +8,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User } from '../user.model';
 import { AuthService } from '../auth.service';
+import * as AuthActions from './auth.actions';
 
 export interface AuthResponseData {
   kind: string;
@@ -34,6 +34,7 @@ const handleAuthentication = (
     userId: userId,
     token: token,
     expirationDate: expirationDate,
+    redirect: true,
   });
 };
 
@@ -174,6 +175,7 @@ export class AuthEffects {
               userId: loadedUser.id,
               token: loadedUser.token,
               expirationDate: new Date(userData._tokenExpirationDate),
+              redirect: false,
             });
             // this.autoLogout(expirationDuration);
           }
@@ -188,9 +190,10 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.AUTHENTICATE_SUCCESS),
-        tap(() => {
-          this.authService.clearLogoutTimer();
-          this.router.navigate(['/']);
+        tap((authSuccessAction: AuthActions.AuthenticateSuccess) => {
+          if (authSuccessAction.payload.redirect) {
+            this.router.navigate(['/']);
+          }
         })
       ),
     { dispatch: false }
